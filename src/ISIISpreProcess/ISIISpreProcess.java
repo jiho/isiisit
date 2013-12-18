@@ -27,7 +27,14 @@ public class ISIISpreProcess {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+//     public static void printRow(int[] row) {
+//        for (int i : row) {
+//            System.out.print(i);
+//            System.out.print("\t");
+//        }
+//        System.out.println();
+//    }
+//      
 
         // get path to directory as first argument
         // String path = args[0];
