@@ -160,13 +160,16 @@ public class ISIISpreProcess {
         
         // get the number of files in the folder to create the array
         int fileNumber = new File(path).listFiles(aviFilter).length;
-        
         // create the array of the length = nb of files and 2 columns (nb of image per stack and cumsum)
         int [][] dataTable = new int[fileNumber][2];
         System.out.println("filenumber= "+fileNumber);
-                
+        // initiate to loop over the table together with the loop over the files
+        //int a = 0;
+        
         int aMax = fileNumber-1;
         System.out.println("aMax= "+aMax);
+        // loop over avi files
+        //// Prepare the date format to rename the images ////
 
        
         
