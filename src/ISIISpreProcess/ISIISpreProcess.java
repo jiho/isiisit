@@ -17,6 +17,8 @@ import ij.plugin.*;
 import ij.plugin.frame.*;
 import static java.lang.Boolean.*;
 import java.util.Arrays;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 
 
@@ -30,7 +32,7 @@ public class ISIISpreProcess {
         // get path to directory as first argument
         // String path = args[0];
         // hard code it for now
-        String path = "/Users/jiho//Work/projects/zooprocess/java_test_bed/images/";
+        String path = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/Test";
         File dir = new File(path);
 
         // create filename filter for AVI files
@@ -80,7 +82,7 @@ public class ISIISpreProcess {
             int w = stack.getWidth();   // image width in pixels
             int h = stack.getHeight();  // image height in pixels
             int dim = w * h;
-
+        
             // // check type of image
             // // 0 = GRAY8
             // // 1 = GRAY16
@@ -142,7 +144,8 @@ public class ISIISpreProcess {
 
                 // compute position at which to store the current slice in the allPixels array
                 // no more than n slices should be stored at the same time
-                // when slice n+1 is reached, it should be stored at position 1, this way, slice 1 is deleted because it was more than n slices away and the new data comes in
+                // when slice n+1 is reached, it should be stored at position 1, this way, 
+                // slice 1 is deleted because it was more than n slices away and the new data comes in
                 int ii = i % n;
 //                System.out.println("position "+ii);
                 
