@@ -238,3 +238,21 @@ public class ISIISpreProcess {
 // IJ.run("Set Measurements...", "area mean standard modal min centroid center perimeter bounding fit shape feret's integrated median skewness kurtosis area_fraction stack redirect="+avi.getName()+" decimal=3");
 // IJ.run(imp, "Analyze Particles...", "size=10-Infinity circularity=0.00-1.00 show=Nothing display clear record in_situ stack");
 // IJ.saveAs("Results", avi.getName()+".txt");
+
+
+
+
+
+
+
+    /**
+     * @param args the command line arguments
+     */
+//     public static void printRow(int[] row) {
+//        for (int i : row) {
+//            System.out.print(i);
+//            System.out.print("\t");
+//        }
+//        System.out.println();
+//    }
+// 
