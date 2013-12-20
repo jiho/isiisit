@@ -42,11 +42,11 @@ public static void main (String[] args) throws Exception
     {
 
         // get path to directory as first argument
-        // String path = args[0];
+        String path = args[0];
         // hard code it for now
-        String path = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/";
+        //String path = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/";
         File dir = new File(path);
-
+        //System.out.println(dir);
         
         
               
@@ -73,7 +73,8 @@ public static void main (String[] args) throws Exception
         // list all avi files
         File[] aviFiles = dir.listFiles(aviFilter);
         
-                        
+ 
+        
       
         //// CREATE THE TABLE WITH CUMSUM AND NB OF FRAMES ////
         
@@ -94,6 +95,23 @@ public static void main (String[] args) throws Exception
                 //for (File avi:aviFiles) 
                 {
 
+            
+            
+            
+                    // Create the directory to receive the files
+        
+                    String dirFin = args[1]; //"~/../../media/raid/unstacked/" ;
+                    // System.out.println(dirFin);
+        
+                    String nameFolder = dirFin+"HDR"+aviFiles[0].getName().substring(0, 14); 
+
+                    System.out.println(nameFolder);
+
+                    File directory = new File(nameFolder);
+                    directory.mkdir();
+
+                    
+                    
                     // print the a index
                     System.out.print(a);
 
@@ -350,7 +368,9 @@ public static void main (String[] args) throws Exception
                       // TEST WITH INVERTED SRC (=ip) AND DEST (=back) --> better !
                       cImg = new ImagePlus("back", back);
                       fs = new FileSaver(cImg);
-                      fs.saveAsBmp(aviFiles[a].getParent()+"/unstacked/"+date+"_"+ms+".bmp");
+                      //fs.saveAsBmp(aviFiles[a].getParent()+"/unstacked/"+date+"_"+ms+".bmp");
+                      //System.out.println(stack.getSize());
+                      fs.saveAsBmp(nameFolder+"/"+date+"_"+ms+".bmp");
 
 
                       } // loop over stack frames
