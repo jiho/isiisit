@@ -100,12 +100,12 @@ public static void main (String[] args) throws Exception
             
                     // Create the directory to receive the files
         
-                    String dirFin = args[1]; //"~/../../media/raid/unstacked/" ;
+                    String dirFin = args[1]; //"../../media/raid/unstacked/" ;
                     // System.out.println(dirFin);
         
                     String nameFolder = dirFin+"HDR"+aviFiles[0].getName().substring(0, 14); 
 
-                    System.out.println(nameFolder);
+                    //System.out.println(nameFolder);
 
                     File directory = new File(nameFolder);
                     directory.mkdir();
