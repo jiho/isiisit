@@ -34,7 +34,7 @@ public class ISIISpreProcess {
         // print progress messages
         final boolean verbose = true;
         // print debug messages
-        final boolean debug = false;
+        final boolean debug = true;
         // moving window size
         int windowSize = 50;
 
