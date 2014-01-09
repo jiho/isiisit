@@ -70,10 +70,12 @@ public class ISIISpreProcess {
 
         // Create the destination directory, if it does not exist already
         File destDir = new File(destDirName);
-        boolean success = destDir.mkdir();
-        if ( ! success ) {
-            Exception e = new Exception("Cannot create destination directory");
-            throw e;
+        if ( ! destDir.exists() ) {
+            boolean success = destDir.mkdir();
+            if ( ! success ) {
+                Exception e = new Exception("Cannot create destination directory");
+                throw e;
+            }
         }
 
 
