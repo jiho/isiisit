@@ -28,6 +28,11 @@ public class ISIISpreProcess {
         File dir = new File(path);
         //System.out.println(dir);
         
+        // Options
+        // print progress messages
+        final boolean verbose = true;
+        // print debug messages
+        final boolean debug = true;
         
               
         // create filename filter for AVI files
