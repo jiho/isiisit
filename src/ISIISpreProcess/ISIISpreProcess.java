@@ -16,18 +16,31 @@ import java.text.SimpleDateFormat;
 public class ISIISpreProcess {
 
     /**
+     * Here we:
+     * List all avi stacks in the working directory and considers them as a continuous string of images
+     * Compute a moving average of the values of pixels along this string of images to compute a background
+     * Remove the backgroud from the last image of the window
+     * Compute the time of each image of the stack, getting the start time of the stack from its name
+     * Save the modified image in a bmp file named according to its time
+     *
      * @param args the command line arguments
+     *        args[0] : source directory
+     *        args[1] : destination directory
      */
     public static void main (String[] args) throws Exception {
 
         // Options
+        //-------------------------------------------------------------------------
         // print progress messages
         final boolean verbose = true;
         // print debug messages
-        final boolean debug = true;
+        final boolean debug = false;
+        // moving window size
+        int windowSize = 50;
 
 
         // Read arguments
+        //-------------------------------------------------------------------------
         if ( args.length != 2 ) {
             Exception e = new Exception("Two arguments required");
             throw e;
@@ -40,6 +53,7 @@ public class ISIISpreProcess {
 
 
         // List AVI files in working directory
+        //-------------------------------------------------------------------------
         // create filename filter for AVI files
         FilenameFilter aviFilter = new FilenameFilter() {
             @Override
@@ -78,12 +92,8 @@ public class ISIISpreProcess {
             }
         }
 
-
-        // create the array of the length = nb of files and 2 columns (nb of image per stack and cumsum)
-        int[][] dataTable = new int[nbOfAviFiles][2];
-
-
         // Initialize the moving window
+        //-------------------------------------------------------------------------
         if ( verbose ) { System.out.println("Initializing background image"); }
 
         // make the window size odd if necessary
@@ -103,121 +113,109 @@ public class ISIISpreProcess {
             windowSize = nbOfImagesInStack;
         }
         if ( debug ) { System.out.println("windowSize = " + windowSize); }
-        
+
         // get size of images
-        int w = stack.getWidth();                // image width in pixels
-        int h = stack.getHeight();               // image height in pixels
-        int imageSize = w * h;                   // nb of pixels in image
+        int w = stack.getWidth();   // image width in pixels
+        int h = stack.getHeight();  // image height in pixels
+        int imageSize = w * h;      // nb of pixels in image
 
         // prepare storage for all pixels in the window
-        byte[][] allPixels;
-        allPixels = new byte[imageSize][windowSize];
-        // NB: we want to store the pixels of each slice as a column so that it is then easy to access simultaneously the array with the values of the first pixel of each slice (which will be allPixels[0])
+        byte[][] windowPixels = new byte[imageSize][windowSize];
+        // NB: we want to store the pixels of each slice as a column so that it is then easy to access simultaneously the array with the values of the first pixel of each slice (which will be windowPixels[0])
 
         // storage for pixels of one slice
         byte[] pixels;
 
-        // prime allPixels with the values at the begining of the first stack
+        // prime windowPixels with the values at the begining of the first stack
         for (int i = 0; i < windowSize; i++) {
             // get the pixels from each slice
             pixels = (byte[]) stack.getPixels(1+i);
             // store them
             for (int j = 0; j < imageSize; j++) {
-                allPixels[j][i] = pixels[j];
+                windowPixels[j][i] = pixels[j];
             }
         }
 
 
-            //System.out.println(dataTable[0][0]);
-            //System.out.println(dataTable[1][0]);
-            //System.out.println(dataTable[0][1]);
-            //System.out.println(dataTable[1][1]);
-            //System.out.println(dataTable[2][1]);
+        // Loop over all images (in all AVI stacks)
+        //-------------------------------------------------------------------------
 
-            // loop over all slices and for each:
-            // . get pixel data from the surrounding slices
-            // . compute the background (mean, median, ...)
-            // . substract the background from the focal slice
+        // initialise a counter for the total number of images
+        int imgCount = 0;
+        // NB: using an int here is more practical because all other indexes are ints
+        //     but it limits the number of images that can be treated in one pass to 2^32
 
-            //pixels = (byte[]) stack.getPixels(430);
-            System.out.println("n= "+n);
+        // loop over avi files
+        for (int a = 0; a < (nbOfAviFiles - 1); a++) {
+            // NB: stop at the before-the-last stack because we cannot compute the time of the images in the last stack
 
-            //String date_string = "2012-10-27 23:45:01.656";
-            // dates of the current stack and the next one
-            String name_ini = aviFiles[a].getName();
-            String name_end = aviFiles[a+1].getName();
-            //System.out.println("name ini= "+name_ini);
-            //System.out.println("name end= "+name_end);
+            // Open avi file in a virtual stack
+            String aviName_current = aviFiles[a].getName();
+            String aviPath_current = aviFiles[a].getAbsolutePath();
+            if ( verbose ) { System.out.println("Processing stack " + aviName_current); }
 
-            // Get parent path to save them at the end
-            //String parent_path = avi.getParent();
-            // Don't forget to add a "/" after it
-            //System.out.println("path= "+parent_path);
+            imp = AVI_Reader.openVirtual( aviPath_current );
+            float[] ctable = imp.getCalibration().getCTable();
 
-            // Split the stack names
-            String name_ini_split[]= name_ini.split("\\.");
-            //System.out.println(java.util.Arrays.toString(name_ini.split("\\.")));
+            stack = imp.getStack();
 
-            String name_end_split[]= name_end.split("\\.");
-            //System.out.println(java.util.Arrays.toString(name_end.split("\\.")));
-
-            // Get the 1st (datetime) and 2nd parts (millisec)
-            String date_ini = name_ini_split[0];
-            String ms_ini = name_ini_split[1];
-
-            String date_end = name_end_split[0];
-            String ms_end = name_end_split[1];
-            //String format = name_end_split[2]; //Should always be "avi"
-
-            //System.out.println("date ini= "+date_ini);
-            //System.out.println("sec ini= "+ms_ini);
-            //System.out.println("date end= "+date_end);
-            //System.out.println("sec end= "+ms_end);
-            //System.out.println("format= "+format);
-
-            // Paste them back together in a string
-            String stack_name_ini = date_ini+ms_ini;
-            //System.out.println("stack ini= "+stack_name_ini);
-
-            String stack_name_end = date_end+ms_end;
-            //System.out.println("stack end= "+stack_name_end);
-
-            // define a format to parse these dates
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            nbOfImagesInStack = stack.getSize();
 
 
-            // LOOP OVER THE STACK FRAMES
-            for (int i=dataTable[a][1]; i < dataTable[a][1]+dataTable[a][0]; i++) {
+            // Compute the time difference between each slice in the stack
+            // get the start time of the current and next stacks from their names
 
-                System.out.println("image "+(i+1-(dataTable[a][1])));
-                System.out.println("i= "+i); // Needs to be 1, so add +1
-                pixels = (byte[]) stack.getPixels(i+1-(dataTable[a][1])); // Needs to be 1 too
+            String aviName_next = aviFiles[a+1].getName();
+            // NB: this is why we stop at nbOfAviFiles - 1
 
-                // compute position at which to store the current slice in the allPixels array
-                // no more than n slices should be stored at the same time
-                // when slice n+1 is reached, it should be stored at position 1, this way,
-                // slice 1 is deleted because it was more than n slices away and the new data comes in
-                int ii = i % n; //(i-(dataTable[a][1])) % n;
-                //System.out.println("position "+ii);
+            SimpleDateFormat dateFormatInName = new SimpleDateFormat("yyyyMMddHHmmss.SSS'.avi'");
+            Date startTime_current = dateFormatInName.parse(aviName_current);
+            Date startTime_next    = dateFormatInName.parse(aviName_next);
 
-                byte[] background;
-                background = new byte[dim];
+            // compute elapsed time in milliseconds
+            long startTimeMsec_current = startTime_current.getTime();
+            long startTimeMsec_next    = startTime_next.getTime();
+            long elapsedMillisec = startTimeMsec_next - startTimeMsec_current;
+            if ( debug ) { System.out.println("elapsedMillisec = " + elapsedMillisec); }
 
-                float[] result;
-                result = new float[dim];
+            // compute time increment per picture in milliseconds
+            long timeStep = elapsedMillisec / nbOfImagesInStack;
+            if ( debug ) { System.out.println("timeStep = " + timeStep); }
 
-                // int[] result;
-                // result = new int[dim];
 
-                // Run the loop over the stack pixels
-                for (int j = 0; j < dim; j++) {
-                    allPixels[j][ii] = pixels[j];
+            // loop over all slices of the stack
+            for (int i = 0; i < nbOfImagesInStack; i++) {
+                if ( verbose ) {
+                    System.out.println("image " + i + " / " + nbOfImagesInStack + " ; " + imgCount + " in total");
+                }
 
-                    //background[j] = Calc.median(allPixels[j]);
-                    // TODO problem with the computation of the background here, should not change for the first n slices but it does.
-                    background[j] = Calc.mean(allPixels[j]); // Results from mean are slightly better than median but also MUCH FASTER
+                // get the pixels of the current slice
+                pixels = (byte[]) stack.getPixels(i+1); // NB: getPixels indexes start at 1
 
-                    // background subtraction from Adam's script using the CalculatorPlus plugin
+                // compute position at which to store the current slice in the windowPixels array
+                // no more than `windowSize` slices should be stored at the same time
+                // when slice `windowSize`+1 is reached, it should be stored at position 1, this way, slice 1 is deleted because it was more than `windowSize` slices away and the new data comes in
+                int ii = imgCount % windowSize;
+
+                // prepare storage of the background image and result of background removal
+                byte[] background = new byte[imageSize];
+                float[] result = new float[imageSize];
+
+                // loop over pixels of the current slice
+                for (int j = 0; j < imageSize; j++) {
+                    // store the pixel in the moving window array
+                    windowPixels[j][ii] = pixels[j];
+
+                    // compute background
+                    // background[j] = Calc.median(windowPixels[j]);
+                    // TODO: problem with the computation of the median background here, should not change for the first n slices but it does.
+                    background[j] = Calc.mean(windowPixels[j]);
+                    // results from mean are slightly better than median but also MUCH FASTER
+
+                    // remove background
+                    // method from the CalculatorPlus plugin, tested by Adam Greer (RSMAS)
+                    // in macro language:
+                    // run("Calculator Plus", "i1=stackname i2=ff operation=[Divide: i2 = (i1/i2) x k1 + k2] k1=235 k2=0 create");
                     float v1 = pixels[j];
                     float v2 = background[j];
                     v2 = (float) (v2!=0.0?v1/v2:0.0);
@@ -225,79 +223,67 @@ public class ISIISpreProcess {
                     float k2 = (float) 0.0;
                     v2 = v2*k1 + k2;
                     result[j] = v2;
-
-                    //result[j] = pixels[j] - background[j];
+                    // TODO: this does not give the same as the CalculatorPlus plugin. There seem to be some cut off. Investigate that.
                 }
-                // compute correction
-                // ByteProcessor ip;
-                // ByteProcessor back;
-                // ip = new ByteProcessor(w, h, pixels);
-                // back = new ByteProcessor(w, h, background);
-                FloatProcessor res;
-                res = new FloatProcessor(w, h, result);
+
+                // store pixels in an ImageProcessor
+                FloatProcessor resultP = new FloatProcessor(w, h, result);
+                resultP.setCalibrationTable(ctable);
+
+                ByteProcessor imgP = new ByteProcessor(w, h, pixels);
+                ByteProcessor backgroundP = new ByteProcessor(w, h, background);
+                // TODO: if the CalculatorPlus method above is chosen, those ByteProcessors are only needed in debug mode = > wrap their construction in an `if` statement
+
+                // substract background from image
+                // ByteProcessor resultP = imP;
+                // resultP.copyBits(backgroundP, 0, 0, Blitter.SUBTRACT);
+
+                // subtract image from background (better!)
+                // ByteProcessor resultP = backgroundP;
+                // resultP.copyBits(imgP, 0, 0, Blitter.SUBTRACT);
+
+                // invert image
+                // resultP.invert();
 
 
-                // Pass the dates to a date format and parse them
-                Date d_ini = formatter.parse(stack_name_ini);
-                Date d_end = formatter.parse(stack_name_end);
+                // Save image(s)
 
-                // convert this Date into milliseconds from 1970-01-01
-                long millisec_ini = d_ini.getTime();
-                long millisec_end = d_end.getTime();
-
-                //System.out.println("ms.d= "+millisec_ini);
-
-                // calculate the time step
-                long millisec_frame = millisec_ini+                 // time stack start
-                      (i-(dataTable[a][1]))*                        // iteration from 1 to stack length
-                      (millisec_end-millisec_ini)/dataTable[a][0];  // time between start and end
-                //System.out.println("ms_frame= "+millisec_frame);
-
-
+                // compute time of this image, used to create the output name
+                long currentTimeMsec = startTimeMsec_current + i * timeStep;
                 // reconvert those milliseconds into a Date object
-                Date d2 = new Date(millisec_frame);
-                //System.out.println("ms400= "+ms2);
+                Date currentTime = new Date(currentTimeMsec);
                 // and format it into a character string
-                String datetime_frame = formatter.format(d2);
-
-                // print both strings
-                //System.out.println("date orig= "+d_ini);
-                //System.out.println("date + 400ms = "+datetime_frame);
+                SimpleDateFormat dateFormatOutName = new SimpleDateFormat("yyyyMMddHHmmss_SSS");
+                String outName = dateFormatOutName.format(currentTime);
+                if ( debug ) { System.out.println("outName = " + outName); }
 
 
-                String date = datetime_frame.substring(0, 14);
-                String ms = datetime_frame.substring(14, 17);
-                //System.out.println("date= "+date);
-                //System.out.println("ms ="+ms);
-
-
-                ImagePlus cImg;
+                ImagePlus ip;
                 FileSaver fs;
 
-                //cImg = new ImagePlus("orig", ip);
-                //fs = new FileSaver(cImg);
-                //fs.saveAsJpeg(avi.getParent()+"/"+datetime_frame+"-orig.bmp");
+                if ( debug ) {
+                    // save orignal image
+                    ip = new ImagePlus("orig", imgP);
+                    fs = new FileSaver(ip);
+                    fs.saveAsJpeg(destDirName + "/" + outName + "-orig.jpg");
 
+                    // save background
+                    ip = new ImagePlus("background", backgroundP);
+                    fs = new FileSaver(ip);
+                    fs.saveAsJpeg(destDirName + "/" + outName + "-back.jpg");
+                }
 
-                //cImg = new ImagePlus("back", back);
-                //fs = new FileSaver(cImg);
-                //fs.saveAsJpeg(avi.getParent()+"/"+datetime_frame+"-back.bmp");
+                // save result
+                ip = new ImagePlus("result", resultP);
+                fs = new FileSaver(ip);
+                fs.saveAsBmp(destDirName + "/" + outName + ".bmp");
 
-
-                // Substracted the back from the original image
-                // back.copyBits(ip, 0, 0, Blitter.SUBTRACT);
-                //ip.invert();
-                //back.threshold(35);
-
-                // TEST WITH INVERTED SRC (=ip) AND DEST (=back) --> better !
-                // cImg = new ImagePlus("back", back);
-                cImg = new ImagePlus("res", res);
-                fs = new FileSaver(cImg);
-                //fs.saveAsBmp(aviFiles[a].getParent()+"/unstacked/"+date+"_"+ms+".bmp");
-                //System.out.println(stack.getSize());
-                fs.saveAsBmp(nameFolder+"/"+date+"_"+ms+".bmp");
+                // increase counter
+                imgCount = imgCount + 1;
 
             } // loop over stack frames
         } // loop over avi files
+
     }
+
 }
