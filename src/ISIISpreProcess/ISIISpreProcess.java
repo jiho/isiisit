@@ -1,29 +1,17 @@
 package ISIISpreProcess;
 
-import ij.IJ;
+// ImageJ functionality
 import ij.io.*;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.*;
+import ij.plugin.*;
+// file listing
 import java.io.File;
 import java.io.FilenameFilter;
-import ij.process.*;
-import ij.gui.*;
-import ij.plugin.Duplicator;
-import java.awt.*;
-import ij.process.*;
-import ij.gui.*;
-import java.awt.*;
-import ij.plugin.*;
-import ij.plugin.frame.*;
-import static java.lang.Boolean.*;
-import java.util.Arrays;
+// date computation
 import java.util.Date;
 import java.text.SimpleDateFormat;
-
-
-
-
-
 
 public class ISIISpreProcess {
 
