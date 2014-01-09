@@ -20,13 +20,6 @@ public class ISIISpreProcess {
      */
     public static void main (String[] args) throws Exception
     {
-
-        // get path to directory as first argument
-        String path = args[0];
-        // hard code it for now
-        //String path = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/";
-        File dir = new File(path);
-        //System.out.println(dir);
         
         // Options
         // print progress messages
@@ -34,7 +27,18 @@ public class ISIISpreProcess {
         // print debug messages
         final boolean debug = true;
         
-              
+
+        // Read arguments
+        if ( args.length != 2 ) {
+            Exception e = new Exception("Two arguments required");
+            throw e;
+        }
+        // first argument: working directory (where the avi files are)
+        String workDirName = args[0];
+        // String workDirName = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/";
+        // second argument: destination directory (where the resulting images should be written)
+        String destDirName = args[1];
+
         // create filename filter for AVI files
         FilenameFilter aviFilter = new FilenameFilter() {
 
