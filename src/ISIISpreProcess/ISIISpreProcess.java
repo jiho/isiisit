@@ -60,6 +60,10 @@ public class ISIISpreProcess {
         File workDir = new File(workDirName);
         // list all avi files
         File[] aviFiles = workDir.listFiles(aviFilter);
+        if ( aviFiles == null ) {
+            Exception e = new Exception("Cannot list avi files in " + workDir.getAbsolutePath() );
+            throw e;
+        }
         int nbOfAviFiles = aviFiles.length;
         if ( verbose ) { System.out.println("Processing " + nbOfAviFiles + " AVI stacks"); }
 
@@ -73,9 +77,14 @@ public class ISIISpreProcess {
             // Create the directory to receive the files
             String nameFolder = destDirName+"HDR"+aviFiles[0].getName().substring(0, 14);
             //System.out.println(nameFolder);
+        // Create the destination directory, if it does not exist already
+        File destDir = new File(destDirName);
+        boolean success = destDir.mkdir();
+        if ( ! success ) {
+            Exception e = new Exception("Cannot create destination directory");
+            throw e;
+        }
 
-            File directory = new File(nameFolder);
-            directory.mkdir();
 
             // print the a index
             System.out.print(a);
