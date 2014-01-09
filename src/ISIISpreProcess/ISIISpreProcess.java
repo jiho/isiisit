@@ -39,28 +39,30 @@ public class ISIISpreProcess {
         // second argument: destination directory (where the resulting images should be written)
         String destDirName = args[1];
 
+
+        // List AVI files in working directory
         // create filename filter for AVI files
         FilenameFilter aviFilter = new FilenameFilter() {
-
-             @Override
-             public boolean accept(File dir, String name) {
-                    if(name.lastIndexOf('.')>0) {
-                         // get extension
-                         int lastIndex = name.lastIndexOf('.');
-                         String str = name.substring(lastIndex);
-
-                         // match avi extension
-                         if(str.equals(".avi")) {
-                                return true;
-                         }
+            @Override
+            public boolean accept(File dir, String name) {
+                if(name.lastIndexOf('.')>0) {
+                    // get extension
+                    int lastIndex = name.lastIndexOf('.');
+                    String str = name.substring(lastIndex);
+                    // match avi extension
+                    if(str.equals(".avi")) {
+                        return true;
                     }
-                    return false;
-             }
-             
+                }
+                return false;
+            }
         };
-                
+        // convert workding directoy name to Java File object
+        File workDir = new File(workDirName);
         // list all avi files
-        File[] aviFiles = dir.listFiles(aviFilter);
+        File[] aviFiles = workDir.listFiles(aviFilter);
+        int nbOfAviFiles = aviFiles.length;
+        if ( verbose ) { System.out.println("Processing " + nbOfAviFiles + " AVI stacks"); }
         
  
         
