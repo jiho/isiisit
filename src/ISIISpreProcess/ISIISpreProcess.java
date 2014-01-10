@@ -1,6 +1,7 @@
 package ISIISpreProcess;
 
 // ImageJ functionality
+import ij.IJ;
 import ij.io.*;
 import ij.ImagePlus;
 import ij.ImageStack;
