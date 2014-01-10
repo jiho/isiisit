@@ -112,7 +112,7 @@ public class ISIISgetParticles {
             String outName = destDirName + fileNameNoExt;
             if ( debug ) { Message.debug("outName = " + outName); }
             // save a copy of the original image
-            // if ( debug ) { IJ.save(imp, outName + "-0-orig.png"); }
+            if ( debug ) { IJ.save(imp, outName + "-0-orig.png"); }
 
 
             // threshold image
