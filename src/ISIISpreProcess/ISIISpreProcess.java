@@ -13,6 +13,9 @@ import java.io.FilenameFilter;
 // date computation
 import java.util.Date;
 import java.text.SimpleDateFormat;
+// utility functions
+import ISIISutils.Calc;
+import ISIISutils.Message;
 
 public class ISIISpreProcess {
 
