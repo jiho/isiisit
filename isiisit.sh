@@ -5,4 +5,4 @@
 #
 #
 
-time java -Xms32m -Xmx2000m -Xincgc -XX:+DisableExplicitGC -cp libs/ij.jar:dist/ISIISit.jar ISIISpreProcess.ISIISpreProcess $1 $2
+time java -Xms32m -Xmx2000m -Xincgc -XX:+DisableExplicitGC -cp dist/lib/ij.jar:dist/ISIISit.jar ISIISpreProcess.ISIISpreProcess $1 $2
