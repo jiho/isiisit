@@ -189,6 +189,17 @@ public class ISIISpreProcess {
                     System.out.println("image " + i + " / " + nbOfImagesInStack + " ; " + imgCount + " in total");
                 }
 
+                // compute time of this image (used to create the output name)
+                long currentTimeMsec = startTimeMsec_current + i * timeStep;
+                // reconvert those milliseconds into a Date object
+                Date currentTime = new Date(currentTimeMsec);
+                // and format it into a character string
+                SimpleDateFormat dateFormatOutName = new SimpleDateFormat("yyyyMMddHHmmss_SSS");
+                String outName = dateFormatOutName.format(currentTime);
+                outName = destDirName + "/" + outName;
+                if ( debug ) { System.out.println("outName = " + outName); }
+
+
                 // get the pixels of the current slice
                 pixels = (byte[]) stack.getPixels(i+1);
                 // NB: stack slices indexes start at 1
@@ -230,47 +241,39 @@ public class ISIISpreProcess {
                 FloatProcessor resultFP = new FloatProcessor(w, h, result);
                 ImageProcessor resultIP = resultFP.convertToByte(false);
                 // NB: false => do not scale when converting to bytes => cut lower grey levels to white
-
-                // invert image
-                // resultIP.invert();
-
-                // normalize image (make greay level range from 0 to 255 for all images)
-                // add a tolerance (saturate a give proportion of pixels)
                 ImagePlus resultIMG = new ImagePlus("result", resultIP);
-                // IJ.run(resultIMG, "Enhance Contrast...", "saturated=0.1 normalize");
-
-                // Save image(s)
-
-                // compute time of this image, used to create the output name
-                long currentTimeMsec = startTimeMsec_current + i * timeStep;
-                // reconvert those milliseconds into a Date object
-                Date currentTime = new Date(currentTimeMsec);
-                // and format it into a character string
-                SimpleDateFormat dateFormatOutName = new SimpleDateFormat("yyyyMMddHHmmss_SSS");
-                String outName = dateFormatOutName.format(currentTime);
-                if ( debug ) { System.out.println("outName = " + outName); }
-
-
                 if ( debug ) {
                     ByteProcessor bp;
                     ImagePlus ip;
 
-                    // save orignal image
-                    bp = new ByteProcessor(w, h, pixels);
-                    ip = new ImagePlus("orig", bp);
-                    IJ.save(ip, destDirName + "/" + outName + "-orig.jpg");
-
                     // save background
                     bp = new ByteProcessor(w, h, background);
                     ip = new ImagePlus("background", bp);
-                    IJ.save(ip, destDirName + "/" + outName + "-background.jpg");
+                    IJ.save(ip, outName + "-0-background.jpg");
+
+                    // save orignal image
+                    bp = new ByteProcessor(w, h, pixels);
+                    ip = new ImagePlus("orig", bp);
+                    IJ.save(ip, outName + "-1-orig.jpg");
+
+                    // save resulting image
+                    IJ.save(resultIMG, outName + "-2-divided.jpg");
                 }
 
+                // invert image
+                // resultIMG.getProcessor().invert();
+                // if ( debug ) { IJ.save(resultIMG, outName + "-3-inverted.jpg"); }
+
+                // normalize image (make greay level range from 0 to 255 for all images)
+                // add a tolerance (saturate a give proportion of pixels)
+                IJ.run(resultIMG, "Enhance Contrast...", "saturated=0.1 normalize");
+                if ( debug ) { IJ.save(resultIMG, outName + "-4-normalised.jpg"); }
+
                 // save result
-                IJ.save(resultIMG, destDirName + "/" + outName + ".bmp");
+                IJ.save(resultIMG, outName + ".bmp");
                 // or
                 // FileSaver fs = new FileSaver(resultIMG);
-                // fs.saveAsBmp(destDirName + "/" + outName + ".bmp");
+                // fs.saveAsBmp(outName + ".bmp");
                 // not sure there is performance advantage to this solution although there should be
 
                 // increase counter
