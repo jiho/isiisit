@@ -110,10 +110,10 @@ public class ISIISpreProcess {
         // make sure we have enough slices in the stack to fit the window
         int nbOfImagesInStack = stack.getSize(); // number of images in stack
         if ( windowSize > nbOfImagesInStack ) {
-            System.out.println("WARNING reducing moving window size to fit in stack");
+            Message.warning("reducing moving window size to fit in stack");
             windowSize = nbOfImagesInStack;
         }
-        if ( debug ) { System.out.println("windowSize = " + windowSize); }
+        if ( debug ) { Message.debug("windowSize = " + windowSize); }
 
         // get size of images
         int w = stack.getWidth();   // image width in pixels
@@ -177,11 +177,11 @@ public class ISIISpreProcess {
             long startTimeMsec_current = startTime_current.getTime();
             long startTimeMsec_next    = startTime_next.getTime();
             long elapsedMillisec = startTimeMsec_next - startTimeMsec_current;
-            if ( debug ) { System.out.println("elapsedMillisec = " + elapsedMillisec); }
+            if ( debug ) { Message.debug("elapsedMillisec = " + elapsedMillisec); }
 
             // compute time increment per picture in milliseconds
             long timeStep = elapsedMillisec / nbOfImagesInStack;
-            if ( debug ) { System.out.println("timeStep = " + timeStep); }
+            if ( debug ) { Message.debug("timeStep = " + timeStep); }
 
 
             // Loop over all slices of the stack
@@ -199,7 +199,7 @@ public class ISIISpreProcess {
                 SimpleDateFormat dateFormatOutName = new SimpleDateFormat("yyyyMMddHHmmss_SSS");
                 String outName = dateFormatOutName.format(currentTime);
                 outName = destDirName + "/" + outName;
-                if ( debug ) { System.out.println("outName = " + outName); }
+                if ( debug ) { Message.debug("outName = " + outName); }
 
 
                 // get the pixels of the current slice
