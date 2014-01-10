@@ -213,22 +213,22 @@ public class ISIISpreProcess {
                     // results from mean are slightly better than median but also MUCH FASTER
 
                     // remove background
-                    // method from the CalculatorPlus plugin, tested by Adam Greer (RSMAS)
+                    // method from the CalculatorPlus plugin, modified from Adam Greer (RSMAS)
                     // in macro language:
                     // run("Calculator Plus", "i1=stackname i2=ff operation=[Divide: i2 = (i1/i2) x k1 + k2] k1=235 k2=0 create");
-                    float v1 = pixels[j];
-                    float v2 = background[j];
+                    float v1 = (float) (pixels[j] & 0xff);
+                    float v2 = (float) (background[j] & 0xff);
                     v2 = (float) (v2!=0.0?v1/v2:0.0);
                     float k1 = (float) 235.0;
                     float k2 = (float) 0.0;
                     v2 = v2*k1 + k2;
                     result[j] = v2;
-                    // TODO: this does not give the same as the CalculatorPlus plugin. There seem to be some cut off. Investigate that.
                 }
 
                 // store pixels in an ImageProcessor
-                FloatProcessor resultP = new FloatProcessor(w, h, result);
-                resultP.setCalibrationTable(ctable);
+                FloatProcessor resultFP = new FloatProcessor(w, h, result);
+                ImageProcessor resultP = resultFP.convertToByte(false);
+                // NB: false => do not scale when converting to bytes => cut lower grey levels to white
 
                 ByteProcessor imgP = new ByteProcessor(w, h, pixels);
                 ByteProcessor backgroundP = new ByteProcessor(w, h, background);
