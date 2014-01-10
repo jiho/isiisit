@@ -184,7 +184,8 @@ public class ISIISpreProcess {
             if ( debug ) { System.out.println("timeStep = " + timeStep); }
 
 
-            // loop over all slices of the stack
+            // Loop over all slices of the stack
+            //---------------------------------------------------------------------
             for (int i = 0; i < nbOfImagesInStack; i++) {
                 if ( verbose ) {
                     System.out.println("image " + i + " / " + nbOfImagesInStack + " ; " + imgCount + " in total");
