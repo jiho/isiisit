@@ -190,7 +190,8 @@ public class ISIISpreProcess {
                 }
 
                 // get the pixels of the current slice
-                pixels = (byte[]) stack.getPixels(i+1); // NB: getPixels indexes start at 1
+                pixels = (byte[]) stack.getPixels(i+1);
+                // NB: stack slices indexes start at 1
 
                 // compute position at which to store the current slice in the windowPixels array
                 // no more than `windowSize` slices should be stored at the same time
@@ -232,7 +233,7 @@ public class ISIISpreProcess {
 
                 ByteProcessor imgP = new ByteProcessor(w, h, pixels);
                 ByteProcessor backgroundP = new ByteProcessor(w, h, background);
-                // TODO: if the CalculatorPlus method above is chosen, those ByteProcessors are only needed in debug mode = > wrap their construction in an `if` statement
+                // TODO: if the CalculatorPlus method above is chosen, those ByteProcessors are only needed in debug mode => wrap their construction in an `if` statement
 
                 // substract background from image
                 // ByteProcessor resultP = imP;
