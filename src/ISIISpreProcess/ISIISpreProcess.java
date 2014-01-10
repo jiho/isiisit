@@ -228,23 +228,11 @@ public class ISIISpreProcess {
 
                 // store pixels in an ImageProcessor
                 FloatProcessor resultFP = new FloatProcessor(w, h, result);
-                ImageProcessor resultP = resultFP.convertToByte(false);
+                ImageProcessor resultIP = resultFP.convertToByte(false);
                 // NB: false => do not scale when converting to bytes => cut lower grey levels to white
 
-                ByteProcessor imgP = new ByteProcessor(w, h, pixels);
-                ByteProcessor backgroundP = new ByteProcessor(w, h, background);
-                // TODO: if the CalculatorPlus method above is chosen, those ByteProcessors are only needed in debug mode => wrap their construction in an `if` statement
-
-                // substract background from image
-                // ByteProcessor resultP = imP;
-                // resultP.copyBits(backgroundP, 0, 0, Blitter.SUBTRACT);
-
-                // subtract image from background (better!)
-                // ByteProcessor resultP = backgroundP;
-                // resultP.copyBits(imgP, 0, 0, Blitter.SUBTRACT);
-
                 // invert image
-                // resultP.invert();
+                // resultIP.invert();
 
 
                 // Save image(s)
@@ -259,25 +247,27 @@ public class ISIISpreProcess {
                 if ( debug ) { System.out.println("outName = " + outName); }
 
 
-                ImagePlus ip;
-                FileSaver fs;
-
                 if ( debug ) {
+                    ByteProcessor bp;
+                    ImagePlus ip;
+
                     // save orignal image
-                    ip = new ImagePlus("orig", imgP);
-                    fs = new FileSaver(ip);
-                    fs.saveAsJpeg(destDirName + "/" + outName + "-orig.jpg");
+                    bp = new ByteProcessor(w, h, pixels);
+                    ip = new ImagePlus("orig", bp);
+                    IJ.save(ip, destDirName + "/" + outName + "-orig.jpg");
 
                     // save background
-                    ip = new ImagePlus("background", backgroundP);
-                    fs = new FileSaver(ip);
-                    fs.saveAsJpeg(destDirName + "/" + outName + "-back.jpg");
+                    bp = new ByteProcessor(w, h, background);
+                    ip = new ImagePlus("background", bp);
+                    IJ.save(ip, destDirName + "/" + outName + "-background.jpg");
                 }
 
                 // save result
-                ip = new ImagePlus("result", resultP);
-                fs = new FileSaver(ip);
-                fs.saveAsBmp(destDirName + "/" + outName + ".bmp");
+                IJ.save(resultIMG, destDirName + "/" + outName + ".bmp");
+                // or
+                // FileSaver fs = new FileSaver(resultIMG);
+                // fs.saveAsBmp(destDirName + "/" + outName + ".bmp");
+                // not sure there is performance advantage to this solution although there should be
 
                 // increase counter
                 imgCount = imgCount + 1;
