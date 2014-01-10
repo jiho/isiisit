@@ -234,6 +234,10 @@ public class ISIISpreProcess {
                 // invert image
                 // resultIP.invert();
 
+                // normalize image (make greay level range from 0 to 255 for all images)
+                // add a tolerance (saturate a give proportion of pixels)
+                ImagePlus resultIMG = new ImagePlus("result", resultIP);
+                // IJ.run(resultIMG, "Enhance Contrast...", "saturated=0.1 normalize");
 
                 // Save image(s)
 
