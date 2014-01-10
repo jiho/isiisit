@@ -2,11 +2,11 @@ package ISIISpreProcess;
 
 // ImageJ functionality
 import ij.IJ;
-import ij.io.*;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.process.*;
-import ij.plugin.*;
+import ij.process.*;    // for ImageProcessor and subclasses
+import ij.plugin.*;     // for AVI_Reader
+// import ij.io.*;         // for FileSaver
 // file listing
 import java.io.File;
 import java.io.FilenameFilter;
