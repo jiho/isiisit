@@ -269,9 +269,13 @@ public class ISIISpreProcess {
                 // resultIMG.getProcessor().invert();
                 // if ( debug ) { IJ.save(resultIMG, outName + "-3-inverted.jpg"); }
 
-                // normalize image (make greay level range from 0 to 255 for all images)
-                // add a tolerance (saturate a give proportion of pixels)
-                IJ.run(resultIMG, "Enhance Contrast...", "saturated=0.1 normalize");
+                // normalize image (make gray level range from 0 to 255 for all images)
+                // add a tolerance (saturate a given proportion of pixels)
+                // IJ.run(resultIMG, "Enhance Contrast...", "saturated=0.1 normalize");
+                // or
+                ContrastEnhancer ce = new ContrastEnhancer();
+                ce.setNormalize(true);
+                ce.stretchHistogram(resultIMG, 0.005);
                 if ( debug ) { IJ.save(resultIMG, outName + "-4-normalised.jpg"); }
 
                 // save result
