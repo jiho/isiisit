@@ -6,7 +6,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.*;    // for ImageProcessor and subclasses
 import ij.plugin.*;     // for AVI_Reader
-// import ij.io.*;         // for FileSaver
+import ij.io.*;         // for FileSaver
 // file listing
 import java.io.File;
 import java.io.FilenameFilter;
@@ -38,7 +38,7 @@ public class ISIISpreProcess {
         // print progress messages
         final boolean verbose = true;
         // print debug messages
-        final boolean debug = true;
+        final boolean debug = false;
         // moving window size
         int windowSize = 50;
 
@@ -247,27 +247,31 @@ public class ISIISpreProcess {
                 ImageProcessor resultIP = resultFP.convertToByte(false);
                 // NB: false => do not scale when converting to bytes => cut lower grey levels to white
                 ImagePlus resultIMG = new ImagePlus("result", resultIP);
-                if ( debug ) {
+                
+		    if ( debug ) {
                     ByteProcessor bp;
                     ImagePlus ip;
 
                     // save background
                     bp = new ByteProcessor(w, h, background);
                     ip = new ImagePlus("background", bp);
-                    IJ.save(ip, outName + "-0-background.jpg");
+                    IJ.save(ip, outName + "-0-background.bmp");
 
                     // save orignal image
                     bp = new ByteProcessor(w, h, pixels);
                     ip = new ImagePlus("orig", bp);
-                    IJ.save(ip, outName + "-1-orig.jpg");
+                    IJ.save(ip, outName + "-1-orig.bmp");
 
                     // save resulting image
-                    IJ.save(resultIMG, outName + "-2-divided.jpg");
+                    IJ.save(resultIMG, outName + "-2-divided.bmp");
+			  
+                    // invert image
+                    resultIMG.getProcessor().invert();
+                    IJ.save(resultIMG, outName + "-3-inverted.bmp");
+			  resultIMG.getProcessor().invert();
+			  
                 }
 
-                // invert image
-                // resultIMG.getProcessor().invert();
-                // if ( debug ) { IJ.save(resultIMG, outName + "-3-inverted.jpg"); }
 
                 // normalize image (make gray level range from 0 to 255 for all images)
                 // add a tolerance (saturate a given proportion of pixels)
@@ -276,14 +280,24 @@ public class ISIISpreProcess {
                 ContrastEnhancer ce = new ContrastEnhancer();
                 ce.setNormalize(true);
                 ce.stretchHistogram(resultIMG, 0.005);
-                if ( debug ) { IJ.save(resultIMG, outName + "-4-normalised.jpg"); }
+		    
+                if ( debug ) { 
+			    IJ.save(resultIMG, outName + "-4-normalised.bmp"); 
+			    
+			    resultIMG.getProcessor().invert();
+                      IJ.save(resultIMG, outName + "-5-norm-inverted.bmp");
+  			    resultIMG.getProcessor().invert();
+		    }
+
+		    // Invert
+		    resultIMG.getProcessor().invert();
 
                 // save result
-                IJ.save(resultIMG, outName + ".bmp");
+                //IJ.save(resultIMG, outName + ".bmp");
                 // or
-                // FileSaver fs = new FileSaver(resultIMG);
-                // fs.saveAsBmp(outName + ".bmp");
-                // not sure there is performance advantage to this solution although there should be
+                FileSaver fs = new FileSaver(resultIMG);
+                fs.saveAsBmp(outName + ".bmp");
+                // Performance enhanced by >5% with file saver instead of IJ.save
 
                 // increase counter
                 imgCount = imgCount + 1;
