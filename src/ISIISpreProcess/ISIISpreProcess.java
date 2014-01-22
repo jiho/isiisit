@@ -247,8 +247,7 @@ public class ISIISpreProcess {
                 ImageProcessor resultIP = resultFP.convertToByte(false);
                 // NB: false => do not scale when converting to bytes => cut lower grey levels to white
                 ImagePlus resultIMG = new ImagePlus("result", resultIP);
-                
-		    if ( debug ) {
+		        if ( debug ) {
                     ByteProcessor bp;
                     ImagePlus ip;
 
@@ -264,14 +263,7 @@ public class ISIISpreProcess {
 
                     // save resulting image
                     IJ.save(resultIMG, outName + "-2-divided.bmp");
-			  
-                    // invert image
-                    resultIMG.getProcessor().invert();
-                    IJ.save(resultIMG, outName + "-3-inverted.bmp");
-			  resultIMG.getProcessor().invert();
-			  
                 }
-
 
                 // normalize image (make gray level range from 0 to 255 for all images)
                 // add a tolerance (saturate a given proportion of pixels)
@@ -282,15 +274,14 @@ public class ISIISpreProcess {
                 ce.stretchHistogram(resultIMG, 0.005);
 		    
                 if ( debug ) { 
-			    IJ.save(resultIMG, outName + "-4-normalised.bmp"); 
-			    
-			    resultIMG.getProcessor().invert();
-                      IJ.save(resultIMG, outName + "-5-norm-inverted.bmp");
-  			    resultIMG.getProcessor().invert();
-		    }
+    			    IJ.save(resultIMG, outName + "-3-normalised.bmp");
+    		    }
 
-		    // Invert
-		    resultIMG.getProcessor().invert();
+    		    // invert
+    		    resultIMG.getProcessor().invert();
+                if ( debug ) {
+                    IJ.save(resultIMG, outName + "-4-inverted.bmp");
+                }
 
                 // save result
                 //IJ.save(resultIMG, outName + ".bmp");
