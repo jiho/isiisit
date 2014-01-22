@@ -41,6 +41,8 @@ public class ISIISpreProcess {
         final boolean debug = false;
         // moving window size
         int windowSize = 50;
+        // orientation of the image
+        String top = "right";
 
 
         // Read arguments
@@ -276,10 +278,23 @@ public class ISIISpreProcess {
                     IJ.save(resultIMG, outName + "-3-normalised.bmp");
                 }
 
-                // invert
-                resultIMG.getProcessor().invert();
+                // rotate image
+                ImageProcessor ip = resultIMG.getProcessor();
+                if ( top.equals("right") ) {
+                    ip = ip.rotateLeft();
+                } else {
+                    ip = ip.rotateLeft();
+                }
                 if ( debug ) {
-                    IJ.save(resultIMG, outName + "-4-inverted.bmp");
+                    resultIMG = new ImagePlus("", ip);
+                    IJ.save(resultIMG, outName + "-4-rotated.bmp");
+                }
+
+                // invert
+                ip.invert();
+                resultIMG = new ImagePlus("", ip);
+                if ( debug ) {
+                    IJ.save(resultIMG, outName + "-5-inverted.bmp");
                 }
 
                 // save result
