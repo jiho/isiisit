@@ -247,7 +247,7 @@ public class ISIISpreProcess {
                 ImageProcessor resultIP = resultFP.convertToByte(false);
                 // NB: false => do not scale when converting to bytes => cut lower grey levels to white
                 ImagePlus resultIMG = new ImagePlus("result", resultIP);
-		        if ( debug ) {
+                if ( debug ) {
                     ByteProcessor bp;
                     ImagePlus ip;
 
@@ -272,19 +272,18 @@ public class ISIISpreProcess {
                 ContrastEnhancer ce = new ContrastEnhancer();
                 ce.setNormalize(true);
                 ce.stretchHistogram(resultIMG, 0.005);
-		    
-                if ( debug ) { 
-    			    IJ.save(resultIMG, outName + "-3-normalised.bmp");
-    		    }
+                if ( debug ) {
+                    IJ.save(resultIMG, outName + "-3-normalised.bmp");
+                }
 
-    		    // invert
-    		    resultIMG.getProcessor().invert();
+                // invert
+                resultIMG.getProcessor().invert();
                 if ( debug ) {
                     IJ.save(resultIMG, outName + "-4-inverted.bmp");
                 }
 
                 // save result
-                //IJ.save(resultIMG, outName + ".bmp");
+                // IJ.save(resultIMG, outName + ".bmp");
                 // or
                 FileSaver fs = new FileSaver(resultIMG);
                 fs.saveAsBmp(outName + ".bmp");
