@@ -236,7 +236,7 @@ public class ISIISpreProcess {
                     float v1 = (float) (pixels[j] & 0xff);
                     float v2 = (float) (background[j] & 0xff);
                     v2 = (float) (v2!=0.0?v1/v2:0.0);
-                    float k1 = (float) 255.0;
+                    float k1 = (float) 254.0;
                     float k2 = (float) 0.0;
                     v2 = v2 * k1 + k2;
                     result[j] = v2;
@@ -271,7 +271,7 @@ public class ISIISpreProcess {
                 // or
                 ContrastEnhancer ce = new ContrastEnhancer();
                 ce.setNormalize(true);
-                ce.stretchHistogram(resultIMG, 0.005);
+                ce.stretchHistogram(resultIMG, 0.001);
                 if ( debug ) {
                     IJ.save(resultIMG, outName + "-3-normalised.bmp");
                 }
