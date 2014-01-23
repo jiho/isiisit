@@ -34,7 +34,6 @@ public class ISIISpreProcess {
 
     // TODO Try to declare all variables early in the file and check for performance improvements
     // TODO In particular, test wether creating variables (new Whatever) in the for loop (hence repeatedly) impacts speed and memory usage. There seems to be a definitive slow down after a while (~100 images) and the program uses at least a Gb of memory
-    // TODO Write better diagnostic messages in verbose mode
     // TODO Implement preferences (java.Prefs) for important options (debug, verbose, working directories, windowSize, saturation level, image orientaiton etc.)
 
     public static void main (String[] args) throws Exception {
@@ -154,10 +153,13 @@ public class ISIISpreProcess {
         // Loop over all images (in all AVI stacks)
         //-------------------------------------------------------------------------
 
-        // initialise a counter for the total number of images
-        int imgCount = 0;
+        // initialise a counters and timers to monitor the loop process
+        int imgCount = 0;           // number of images produced
+        int stackFramesCount = 0;   // cumulated number of frames in stacks
         // NB: using an int here is more practical because all other indexes are ints
         //     but it limits the number of images that can be treated in one pass to 2^32
+        long timerStart;
+        long timerEnd;
 
         // loop over avi files
         for (int a = 0; a < (nbOfAviFiles - 1); a++) {
@@ -174,6 +176,7 @@ public class ISIISpreProcess {
             stack = imp.getStack();
 
             nbOfImagesInStack = stack.getSize();
+            stackFramesCount = stackFramesCount + nbOfImagesInStack;
 
 
             // Compute the time difference between each slice in the stack
@@ -197,13 +200,9 @@ public class ISIISpreProcess {
             if ( debug ) { Message.debug("timeStep = " + timeStep); }
 
 
-            // Loop over all slices of the stack
+            // Loop over all frames of the stack
             //---------------------------------------------------------------------
             for (int i = 0; i < nbOfImagesInStack; i++) {
-                if ( verbose ) {
-                    System.out.println("image " + i + " / " + nbOfImagesInStack + " ; " + imgCount + " in total");
-                }
-
                 // compute time of this image (used to create the output name)
                 long currentTimeMsec = startTimeMsec_current + i * timeStep;
                 // reconvert those milliseconds into a Date object
@@ -211,9 +210,24 @@ public class ISIISpreProcess {
                 // and format it into a character string
                 SimpleDateFormat dateFormatOutName = new SimpleDateFormat("yyyyMMddHHmmss_SSS");
                 String outName = dateFormatOutName.format(currentTime);
-                outName = destDirName + "/" + outName;
-                if ( debug ) { Message.debug("outName = " + outName); }
+                String outPath = destDirName + "/" + outName;
 
+                if ( verbose ) {
+                    // start the timer for this frame
+                    timerStart = System.nanoTime();
+
+                    // compute memory usage
+                    Runtime rt = Runtime.getRuntime();
+                    long usedMB = ( rt.totalMemory() - rt.freeMemory() ) / 1024 / 1024;
+
+                    // print feedback
+                    System.out.print(
+                        aviName_current + " " +
+                        outName + " " + i + " / " + nbOfImagesInStack + " " +
+                        "total: " + imgCount + " / " + stackFramesCount + " " +
+                        "memoryMB: " + usedMB + " "
+                    );
+                }
 
                 // get the pixels of the current slice
                 pixels = (byte[]) stack.getPixels(i+1);
@@ -264,15 +278,15 @@ public class ISIISpreProcess {
                     // save background
                     bp = new ByteProcessor(w, h, background);
                     ip = new ImagePlus("background", bp);
-                    IJ.save(ip, outName + "-0-background.bmp");
+                    IJ.save(ip, outPath + "-0-background.bmp");
 
                     // save orignal image
                     bp = new ByteProcessor(w, h, pixels);
                     ip = new ImagePlus("orig", bp);
-                    IJ.save(ip, outName + "-1-orig.bmp");
+                    IJ.save(ip, outPath + "-1-orig.bmp");
 
                     // save resulting image
-                    IJ.save(resultIMG, outName + "-2-divided.bmp");
+                    IJ.save(resultIMG, outPath + "-2-divided.bmp");
                 }
 
                 // normalize image (make gray level range from 0 to 255 for all images)
@@ -283,7 +297,7 @@ public class ISIISpreProcess {
                 ce.setNormalize(true);
                 ce.stretchHistogram(resultIMG, 0.001);
                 if ( debug ) {
-                    IJ.save(resultIMG, outName + "-3-normalised.bmp");
+                    IJ.save(resultIMG, outPath + "-3-normalised.bmp");
                 }
 
                 // rotate image
@@ -295,25 +309,31 @@ public class ISIISpreProcess {
                 }
                 if ( debug ) {
                     resultIMG = new ImagePlus("", ip);
-                    IJ.save(resultIMG, outName + "-4-rotated.bmp");
+                    IJ.save(resultIMG, outPath + "-4-rotated.bmp");
                 }
 
                 // invert
                 ip.invert();
                 resultIMG = new ImagePlus("", ip);
                 if ( debug ) {
-                    IJ.save(resultIMG, outName + "-5-inverted.bmp");
+                    IJ.save(resultIMG, outPath + "-5-inverted.bmp");
                 }
 
                 // save result
-                // IJ.save(resultIMG, outName + ".bmp");
+                // IJ.save(resultIMG, outPath + ".bmp");
                 // or
                 FileSaver fs = new FileSaver(resultIMG);
-                fs.saveAsBmp(outName + ".bmp");
+                fs.saveAsBmp(outPath + ".bmp");
                 // Performance enhanced by >5% with file saver instead of IJ.save
 
                 // increase counter
                 imgCount = imgCount + 1;
+
+                if ( verbose ) {
+                    timerEnd = System.nanoTime();
+                    long timer = ( timerEnd - timerStart ) / 1000000;
+                    System.out.println("timerMS: " + timer);
+                }
 
             } // loop over stack frames
         } // loop over avi files
