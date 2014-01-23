@@ -59,9 +59,11 @@ public class ISIISpreProcess {
         }
         // first argument: working directory (where the avi files are)
         String workDirName = args[0];
+        if ( debug ) { Message.debug("workDirName = " + workDirName); }
         // String workDirName = "/Users/faillettaz/Desktop/ZOOPROCESS/Stacks/";
         // second argument: destination directory (where the resulting images should be written)
         String destDirName = args[1];
+        if ( debug ) { Message.debug("destDirName = " + destDirName); }
 
 
         // List AVI files in working directory
