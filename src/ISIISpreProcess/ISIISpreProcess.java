@@ -31,6 +31,12 @@ public class ISIISpreProcess {
      *        args[0] : source directory
      *        args[1] : destination directory
      */
+
+    // TODO Try to declare all variables early in the file and check for performance improvements
+    // TODO In particular, test wether creating variables (new Whatever) in the for loop (hence repeatedly) impacts speed and memory usage. There seems to be a definitive slow down after a while (~100 images) and the program uses at least a Gb of memory
+    // TODO Write better diagnostic messages in verbose mode
+    // TODO Implement preferences (java.Prefs) for important options (debug, verbose, working directories, windowSize, saturation level, image orientaiton etc.)
+
     public static void main (String[] args) throws Exception {
 
         // Options
