@@ -23,7 +23,7 @@ public class ISIISpreProcess {
      * Here we:
      * List all avi stacks in the working directory and considers them as a continuous string of images
      * Compute a moving average of the values of pixels along this string of images to compute a background
-     * Remove the backgroud from the last image of the window
+     * Remove the background from the last image of the window
      * Compute the time of each image of the stack, getting the start time of the stack from its name
      * Save the modified image in a bmp file named according to its time
      *
