@@ -123,13 +123,6 @@ public class ISIISgetParticles {
 
 
             // threshold image
-    		ImagePlus imp2 = new Duplicator().run(imp);
-            IJ.setThreshold(imp2, 0, threshold);
-            // TODO: set a fixed threshold. It seems something around 160-200 combined together with a large minimum particle size (several hundrer pixels) is a good compromize to keep transparent organisms as one particle and not be polluted by small particles
-            // IJ.setAutoThreshold(imp, "MaxEntropy");
-            // TODO: seems good but deserves more testing. Is much longer to compute
-            Prefs.blackBackground = false;
-            IJ.run(imp2, "Convert to Mask", "");
 
 
             // analyse particles
@@ -138,6 +131,9 @@ public class ISIISgetParticles {
             Analyzer.setRedirectImage(imp);
             IJ.run(imp2, "Analyze Particles...", "size=400-Infinity circularity=0.00-1.00 show=Nothing exclude clear");
             IJ.saveAs("Results", outName + ".txt");
+            ImagePlus imp2 = new Duplicator().run(imp);
+            ImageProcessor ip2 = imp2.getProcessor();
+            ip2.setThreshold(0, threshold, BLACK_AND_WHITE_LUT);
             if ( debug ) { IJ.save(imp2, outName + "-1-mask.bmp"); }
 
             // analyse particles
