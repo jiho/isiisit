@@ -168,7 +168,7 @@ public class ISIISpreProcess {
             // Open avi file in a virtual stack
             String aviName_current = aviFiles[a].getName();
             String aviPath_current = aviFiles[a].getAbsolutePath();
-            if ( verbose ) { System.out.println("Processing stack " + aviName_current); }
+            if ( debug ) { Message.debug("current stack = "+ aviName_current); }
 
             imp = AVI_Reader.openVirtual( aviPath_current );
             float[] ctable = imp.getCalibration().getCTable();
