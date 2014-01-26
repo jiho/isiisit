@@ -116,8 +116,8 @@ public class ISIISgetParticles {
             // remove extension
             String fileNameNoExt = fileName.substring(0, fileName.lastIndexOf('.'));
             // prepare destination
-            String outName = destDirName + fileNameNoExt;
             if ( debug ) { Message.debug("outName = " + outName); }
+            String outName = destDirName + "/" + fileNameNoExt;
             // save a copy of the original image
             if ( debug ) { IJ.save(imp, outName + "-0-orig.png"); }
 
