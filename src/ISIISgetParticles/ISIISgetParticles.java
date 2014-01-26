@@ -9,11 +9,16 @@ import ISIISutils.Message;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.process.*;
+import ij.process.ImageProcessor;
 import static ij.measure.Measurements.*;
 import ij.measure.ResultsTable;
 import ij.plugin.Duplicator;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.ParticleAnalyzer;
+import static ij.process.ImageProcessor.BLACK_AND_WHITE_LUT;
+import ij.io.*;         // for FileSaver
+
 
 /**
  *
@@ -41,11 +46,13 @@ public class ISIISgetParticles {
         final boolean verbose = true;
         // print debug messages
         final boolean debug = true;
+        // thresholding value
+        int threshold = 205;
 
 
         // Read arguments
         //-------------------------------------------------------------------------
-        if ( args.length != 3 ) {
+        if ( args.length != 2 ) {
             Exception e = new Exception("Not enough arguments");
             throw e;
         }
@@ -53,9 +60,9 @@ public class ISIISgetParticles {
         String workDirName = args[0];
         // second argument: destination directory (where the results should be written)
         String destDirName = args[1];
-        String thresholdString = args[2];
-        int threshold = Integer.parseInt(thresholdString);
-        if ( debug ) { Message.debug("threshold = " + threshold); }
+        // String thresholdString = args[2];
+        // int threshold = Integer.parseInt(thresholdString);
+        // if ( debug ) { Message.debug("threshold = " + threshold); }
 
         // List BMP files in working directory
         //-------------------------------------------------------------------------
