@@ -154,6 +154,55 @@ public class ISIISgetParticles {
             // TODO check computation of number of particles. Does rt have 1 or 2 lines when the first particle is added?
             if ( debug ) { rt.saveAs(outName + ".csv"); }
 
+
+            // extract particles images
+            ImageProcessor ip = imp.getProcessor();
+            ImageProcessor ipROI = imp.getProcessor();
+
+            for (int i = n_previous; i < n_current; i++) {
+                // read coordinates of particle
+                int x = (int) rt.getValueAsDouble(13-2, i);
+                int y = (int) rt.getValueAsDouble(14-2, i);
+                int w = (int) rt.getValueAsDouble(15-2, i);
+                int h = (int) rt.getValueAsDouble(16-2, i);
+                if ( debug ) { Message.debug("x="+x+" y="+y+" w="+w+" h="+h); }
+
+                // widen window around particle
+                int factor = 2;
+                // TODO make this configurable
+                // do not make it too large
+                int padX = Math.min(200, factor * w / 2);
+                int padY = Math.min(200, factor * h / 2);
+
+                // extract new ImageProcessor with current Region Of Interest (ROI)
+                ip.setRoi(x - padX, y - padY, w + 2*padX, h + 2*padY);
+                // NB: setRoi is clever enough that it does not go over the image boundaries
+                ipROI = ip.crop();
+
+                // draw marks around the particle
+                // NB: we have to recompute the (x,y) corner wihin the new image
+                int newX = x;
+                int newY = y;
+                if ( x > padX ) {
+                    newX = padX;
+                }
+                // TODO try to find a better way to do this
+                if ( y > padY ) {
+                    newY = padY;
+                }
+                ipV.drawRect(newX, newY, w, h);
+
+                // save an image of the particle
+                ImagePlus impV = new ImagePlus("", ipV);
+                FileSaver fs = new FileSaver(impV);
+                fs.saveAsBmp(outName + "-" + i + ".bmp");
+                // TODO rename the file using MD5 hash or something similar
+                //      http://stackoverflow.com/questions/304268/getting-a-files-md5-checksum-in-java
+
+                // clear ROI
+                ip.resetRoi();
+            }
+
             n_previous = n_current;
 
         }
