@@ -119,7 +119,7 @@ public class ISIISgetParticles {
             if ( debug ) { Message.debug("outName = " + outName); }
             String outName = destDirName + "/" + fileNameNoExt;
             // save a copy of the original image
-            if ( debug ) { IJ.save(imp, outName + "-0-orig.png"); }
+            if ( debug ) { IJ.save(imp, outName + "-0-orig.bmp"); }
 
 
             // threshold image
@@ -130,7 +130,6 @@ public class ISIISgetParticles {
             // TODO: seems good but deserves more testing. Is much longer to compute
             Prefs.blackBackground = false;
             IJ.run(imp2, "Convert to Mask", "");
-            if ( debug ) { IJ.save(imp2, outName + "-1-mask.png"); }
 
 
             // analyse particles
@@ -139,6 +138,7 @@ public class ISIISgetParticles {
             Analyzer.setRedirectImage(imp);
             IJ.run(imp2, "Analyze Particles...", "size=400-Infinity circularity=0.00-1.00 show=Nothing exclude clear");
             IJ.saveAs("Results", outName + ".txt");
+            if ( debug ) { IJ.save(imp2, outName + "-1-mask.bmp"); }
 
             // analyse particles
             // programmatic version
