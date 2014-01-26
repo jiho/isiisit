@@ -105,10 +105,19 @@ public class ISIISgetParticles {
 
         // Loop over all images
         //-------------------------------------------------------------------------
+
+        // initialize results table
+        ResultsTable rt = new ResultsTable();
+        rt.reset();
+
+        // initialize counters
+        int n_previous = 1;
+        int n_current = 1;
+
         for (File file:bmpFiles) {
 
             String fileName = file.getName();
-            if ( verbose ) { System.out.println(fileName); }
+            if ( verbose ) { System.out.print(fileName+" "); }
 
             // open file
     		ImagePlus imp = IJ.openImage(file.getAbsolutePath());
@@ -116,42 +125,40 @@ public class ISIISgetParticles {
             // remove extension
             String fileNameNoExt = fileName.substring(0, fileName.lastIndexOf('.'));
             // prepare destination
-            if ( debug ) { Message.debug("outName = " + outName); }
             String outName = destDirName + "/" + fileNameNoExt;
             // save a copy of the original image
             if ( debug ) { IJ.save(imp, outName + "-0-orig.bmp"); }
 
 
             // threshold image
-
-
-            // analyse particles
-            // GUI scripting version
-            IJ.run("Set Measurements...", "area mean standard modal min centroid center perimeter bounding fit shape feret's integrated median skewness kurtosis area_fraction stack redirect=None decimal=3");
-            Analyzer.setRedirectImage(imp);
-            IJ.run(imp2, "Analyze Particles...", "size=400-Infinity circularity=0.00-1.00 show=Nothing exclude clear");
-            IJ.saveAs("Results", outName + ".txt");
             ImagePlus imp2 = new Duplicator().run(imp);
             ImageProcessor ip2 = imp2.getProcessor();
             ip2.setThreshold(0, threshold, BLACK_AND_WHITE_LUT);
             if ( debug ) { IJ.save(imp2, outName + "-1-mask.bmp"); }
 
             // analyse particles
-            // programmatic version
-            ResultsTable rt = new ResultsTable();
-            rt.reset();
             int options = 0; // set all ParticleAanalyzer options to false
-            int measurements = AREA+MEAN+CENTROID;
-            // TODO: set more measurements
-            ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, rt, 400, 1000000);
-            // TODO: find a better definition of "infinity"
+            // TODO investigate what those optins are
+            int measurements = LABELS|AREA|AREA_FRACTION|CENTER_OF_MASS|CENTROID|CIRCULARITY|ELLIPSE|FERET|INTEGRATED_DENSITY|KURTOSIS|LIMIT|MAX_STANDARDS|MEAN|MEDIAN|MIN_MAX|MODE|PERIMETER|RECT|SHAPE_DESCRIPTORS|SKEWNESS|STD_DEV;
+            // TODO select measurements
+            // TODO compare with Zooprocess measurements
+
+            ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, rt, 400, imp.getWidth()*imp.getHeight());
+            // TODO make the lower size limit configurable
+            // TODO: find a better/more efficient definition of a large particle
             Analyzer.setRedirectImage(imp);
             pa.analyze(imp2);
-            int nParticles = rt.getCounter();
-            if ( verbose ) { System.out.println("found " + nParticles + " particles"); }
-            rt.saveAs(outName + ".csv");
+
+            n_current = rt.getCounter();
+            if ( verbose ) { System.out.println("+" + (n_current - n_previous) + " " + n_current); }
+            // TODO check computation of number of particles. Does rt have 1 or 2 lines when the first particle is added?
+            if ( debug ) { rt.saveAs(outName + ".csv"); }
+
+            n_previous = n_current;
 
         }
+        // save complete results table
+        rt.saveAs(destDirName + "/particles.csv");
 
     }
 
